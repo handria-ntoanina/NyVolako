@@ -20,6 +20,11 @@ def create_app(test_config=None):
         # load the test config if passed in
         app.config.from_object(test_config)
 
+    # When deploying to heroku, the DATABASE_URL is given as postgres:// which is not recognized by
+    # psycopg2. To fix that, replace postgres:// in SQLALCHEMY_DATABASE_URI
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://",
+                                                                                          "postgresql://")
+
     app.db = db
     db.app = app
     db.init_app(app)
@@ -44,5 +49,8 @@ def create_app(test_config=None):
 
     from routes.accounts import bp as accounts_bp
     app.register_blueprint(accounts_bp, url_prefix='/accounts')
+
+    from routes.transactions import bp as transactions_bp
+    app.register_blueprint(transactions_bp, url_prefix='/transactions')
 
     return app

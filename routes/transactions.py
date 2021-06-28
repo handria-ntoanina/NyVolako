@@ -15,3 +15,21 @@ def get_transactions():
         'success': True,
         'objects': objects
     })
+
+
+@bp.route('', methods=['POST'])
+@requires_auth('transactions:new')
+def post_transactions():
+    pass
+
+
+@bp.route('/<int:transaction_id>', methods=['PATCH'])
+@requires_auth('transactions:update')
+def update_transactions(transaction_id):
+    pass
+
+
+@bp.route('/<int:transaction_id>', methods=['DELETE'])
+@requires_auth('transactions:delete')
+def delete_transactions(transaction_id):
+    pass

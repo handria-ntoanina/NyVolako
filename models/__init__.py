@@ -9,18 +9,19 @@ db = SQLAlchemy()
 class Movement(db.Model):
     __tablename__ = 'movement'
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.DateTime)
-    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
-    amount = db.Column(db.Float)
+    date = db.Column(db.DateTime, nullable=False)
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
     # This is used to group movements together
-    # the sum of
-    transaction_id = db.Column(db.String)
+    # Within a transaction, the sum of the movements amount should equate by following
+    # this rule: asset + expenditure + drawing = liability + revenue + equity
+    transaction_id = db.Column(db.String, nullable=False)
 
 
 @add_formatter()
 class Account(db.Model):
     __tablename__ = 'account'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String(50), unique=True, nullable=False)
     type = db.Column(db.Enum(AccountTypeEnum))
     movements = db.relationsip('Movement', backref='account', foreign_keys=Movement.account_id)

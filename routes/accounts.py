@@ -20,7 +20,7 @@ def get_accounts():
 
 
 @bp.route('', methods=['POST'])
-@requires_auth('accounts:post')
+@requires_auth('accounts:new')
 def create():
     db = current_app.db
     body = request.get_json()
@@ -59,7 +59,7 @@ def delete(account_id):
 
 
 @bp.route('/<int:account_id>', methods=['PATCH'])
-@requires_auth('accounts:patch')
+@requires_auth('accounts:update')
 def patch(account_id):
     db = current_app.db
     o = Account.query.get(account_id)
