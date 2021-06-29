@@ -19,3 +19,4 @@ class ConfigTest(object):
     DATABASE_HOST_PORT = 'localhost:5432'
     SQLALCHEMY_DATABASE_URI = "postgresql://{}@{}/{}".format(DATABASE_CREDENTIALS, DATABASE_HOST_PORT, DATABASE_NAME)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TRACE_MODE = True

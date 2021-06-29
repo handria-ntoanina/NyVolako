@@ -10,7 +10,7 @@ bp = Blueprint('accounts', __name__)
 @bp.route('', methods=['GET'])
 @requires_auth('accounts:get')
 def get_accounts():
-    objects = [o.format() for o in Account.query.order_by(Account.type.asc(), Account.name.asc()).all]
+    objects = [o.format() for o in Account.query.order_by(Account.type.asc(), Account.name.asc()).all()]
     if len(objects) == 0:
         abort(404)
     return jsonify({
@@ -34,9 +34,10 @@ def create():
             'success': True
         }), 200
     except Exception as e:
+        db.session.rollback()
         raise SimpleError("Cannot register that new account", 422)
     finally:
-        current_app.db.session.close()
+        db.session.close()
 
 
 @bp.route('/<int:account_id>', methods=['DELETE'])
@@ -49,13 +50,15 @@ def delete(account_id):
     try:
         db.session.delete(o)
         db.session.commit()
+        print('passed here')
         return jsonify({
             'success': True
         }), 200
     except Exception as e:
+        db.session.rollback()
         raise SimpleError("Cannot delete that new account", 422)
     finally:
-        current_app.db.session.close()
+        db.session.close()
 
 
 @bp.route('/<int:account_id>', methods=['PATCH'])
@@ -74,6 +77,7 @@ def patch(account_id):
             'success': True
         }), 200
     except Exception as e:
+        db.session.rollback()
         abort(422)
     finally:
-        current_app.db.session.close()
+        db.session.close()

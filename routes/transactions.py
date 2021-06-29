@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, jsonify
+
+from models import Transaction
 from utils.auth import requires_auth
-from models import Movement
 
 bp = Blueprint('transactions', __name__)
 
@@ -8,7 +9,7 @@ bp = Blueprint('transactions', __name__)
 @bp.route('', methods=['GET'])
 @requires_auth('transactions:get')
 def get_transactions():
-    objects = [o.format() for o in Movement.query.order_by(Movement.date.asc(), Movement.transaction_id.asc()).all]
+    objects = [o.format() for o in Transaction.query.order_by(Transaction.date.asc()).all()]
     if len(objects) == 0:
         abort(404)
     return jsonify({

@@ -9,11 +9,13 @@ def has_text(text):
     return len(text.strip()) > 0
 
 
-def add_formatter(excluded_fields=None, parents_to_add=None):
+def add_formatter(excluded_fields=None, parents_to_add=None, children_to_add=None):
     if not excluded_fields:
         excluded_fields = []
     if not parents_to_add:
         parents_to_add = []
+    if not children_to_add:
+        children_to_add = []
 
     def create_func(target):
         def format(self):
@@ -25,7 +27,8 @@ def add_formatter(excluded_fields=None, parents_to_add=None):
                 key: ret[key] if not isinstance(ret[key], enum.Enum) else ret[key].name for key in ret
             }
             parents = {key: str(getattr(self, key) if getattr(self, key) else '') for key in parents_to_add}
-            return {**ret, **parents}
+            children = {key: [o.format() for o in getattr(self, key)] for key in children_to_add}
+            return {**ret, **parents, **children}
 
         setattr(target, 'format', format)
         return target

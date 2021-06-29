@@ -3,10 +3,11 @@ from flask import request
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
+from functools import cache
 
-AUTH0_DOMAIN = 'modern-ant-dev.eu.auth0.com'
+AUTH0_DOMAIN = 'kotogasy.eu.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'https://main'
+API_AUDIENCE = 'https://nyvolako.modernant.mg'
 
 # AuthError Exception
 '''
@@ -109,9 +110,15 @@ def check_permissions(permission, payload):
 '''
 
 
-def verify_decode_jwt(token):
+@cache
+def get_jwks():
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
+    return jwks
+
+
+def verify_decode_jwt(token):
+    jwks = get_jwks()
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
     if 'kid' not in unverified_header:
