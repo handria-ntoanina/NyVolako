@@ -228,6 +228,7 @@ The API will return four error types when requests fail:
 ## GET /accounts
 
 * Fetches an array of accounts
+* Required permission: `accounts:get`
 * Request Arguments: None
 * Returns:
     * objects: array of accounts
@@ -249,6 +250,7 @@ The API will return four error types when requests fail:
 ## POST /accounts
 
 * Adds new account to the API database
+* Required permission: `accounts:new`
 * Request Arguments: These are expected to be a JSON in the request body
     * name: name of the account
     * type: type of the account and the allowed values are `asset`,`expense`, `drawing`,
@@ -272,6 +274,7 @@ The API will return four error types when requests fail:
 
 * Update only the name of an account that exists already in the API database. The type of the account cannot be updated
   as it may lead to unbalanced accounts
+* Required permission: `accounts:update`
 * Request Arguments:
     * account_id part of the URL indicates the account to be updated
     * name provided as a JSON in the request body indicates the new name of the account
@@ -292,6 +295,7 @@ The API will return four error types when requests fail:
 ## DELETE /accounts/<int:account_id>
 
 * Deletes a given account. This returns an error if there is at least one movement attached to the account.
+* Required permission: `accounts:delete`
 * Request Arguments: account_id, part of the URL, which is the id of the account to be deleted.
 * Returns: a json indicating that the deleting was successful
 * Sample:
@@ -310,6 +314,7 @@ The API will return four error types when requests fail:
 ## GET /transactions
 
 * Fetches a list of all transactions
+* Required permission: `transactions:get`
 * Request Arguments: None
 * Returns:
     * objects: an array of transactions where each transaction has a list of movements
@@ -347,6 +352,7 @@ The API will return four error types when requests fail:
     `asset + expense + drawing = liability + revenue + equity`
     * each movement has an amount different from zero
     * each movement is tied to an account that exists
+* Required permission: `transactions:new`
 * Request Arguments: a json object in the request body having the following members
     * date - date of the transaction
     * description - description of the transaction
@@ -381,6 +387,7 @@ The API will return four error types when requests fail:
     `asset + expense + drawing = liability + revenue + equity`
     * each movement has an amount different from zero
     * each movement is tied to an account that exists
+* Required permission: `transactions:update`
 * Request Arguments:
     * transaction_id, part of the URL, which is the id of the transaction to be updated
     * a json object in the request body having the following members
@@ -413,6 +420,7 @@ The API will return four error types when requests fail:
 ## DELETE /transactions/<int:transaction_id>
 
 * Deletes a transaction from the API database including the movements that are linked to it
+* Required permission: `transactions:delete`
 * Request Arguments: transaction_id, part of the URL, which is the id of the transaction to be deleted
 * Returns: a json indicating that the deleting was successful
 * Sample:
