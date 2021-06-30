@@ -24,8 +24,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(50), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
-    movements = db.relationship('Movement', backref='transaction', foreign_keys=Movement.transaction_id,
-                                passive_deletes='all')
+    movements = db.relationship('Movement', backref='transaction', foreign_keys=Movement.transaction_id)
 
 
 @add_formatter(children_to_add=['movements'])

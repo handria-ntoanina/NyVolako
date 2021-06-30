@@ -64,7 +64,8 @@ class AccountsTestCase(DefaultTestCase):
         self.assert_422(response)
 
     def test_update(self):
-        new_object = {'name': self.faker.name(), 'type': AccountTypeEnum.equity.name}
+        initial_type = AccountTypeEnum.equity.name
+        new_object = {'name': self.faker.name(), 'type': initial_type}
         response = self.client().post('/accounts', json=new_object,
                                       headers={'Authorization': 'bearer ' + self.TOKEN_ACCOUNTANT})
         self.view_message_if_fail(response)
@@ -87,8 +88,9 @@ class AccountsTestCase(DefaultTestCase):
         self.assert_200(response)
         data = json.loads(response.data)
         updated = data['objects'][0]
-        for attr in to_update:
-            self.assertEqual(to_update[attr], updated[attr])
+        self.assertEqual(to_update['name'], updated['name'])
+        # check that the account type remain unchanged
+        self.assertEqual(initial_type, updated['type'])
 
     def test_update_exception(self):
         new_object = {'name': self.faker.name(), 'type': AccountTypeEnum.equity.name}

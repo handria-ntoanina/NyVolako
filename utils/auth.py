@@ -4,22 +4,11 @@ from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 from functools import cache
+from errors import AuthError
 
 AUTH0_DOMAIN = 'kotogasy.eu.auth0.com'
 ALGORITHMS = ['RS256']
 API_AUDIENCE = 'https://nyvolako.modernant.mg'
-
-# AuthError Exception
-'''
-AuthError Exception
-A standardized way to communicate auth failure modes
-'''
-
-
-class AuthError(Exception):
-    def __init__(self, error, status_code):
-        self.error = error
-        self.status_code = status_code
 
 
 # Auth Header

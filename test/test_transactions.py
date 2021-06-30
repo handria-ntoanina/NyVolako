@@ -1,4 +1,6 @@
 import datetime
+from datetime import timedelta
+from dateutil import parser
 import json
 import unittest
 
@@ -28,8 +30,8 @@ class TransactionsTestCase(DefaultTestCase):
         self.assertEqual(1, len(transactions))
         movements = transactions[0]['movements']
         self.assertEqual(1, len(movements))
-        self.assertEqual(now, transactions[0].date)
-        self.assertEqual(amount, movements[0].amount)
+        self.assertLess(now - parser.parse(transactions[0]['date'], ignoretz=True), timedelta(seconds=1))
+        self.assertEqual(amount, movements[0]['amount'])
 
     def test_get_exception(self):
         Movement.query.delete()
@@ -47,10 +49,13 @@ class TransactionsTestCase(DefaultTestCase):
         self.db.session.commit()
         bank_account = Account(name='Bank', type=AccountTypeEnum.asset)
         sales_account = Account(name='Sales', type=AccountTypeEnum.revenue)
-        self.db.session.bulk_save_objects([bank_account, sales_account])
+        self.db.session.add(bank_account)
+        self.db.session.add(sales_account)
         self.db.session.commit()
         bank_id = bank_account.id
         sales_id = sales_account.id
+        self.assertIsNotNone(bank_id)
+        self.assertIsNotNone(sales_id)
         now = datetime.datetime.now()
         name = self.faker.name()
         amount = 150
@@ -74,7 +79,7 @@ class TransactionsTestCase(DefaultTestCase):
         data = json.loads(response.data)
         transactions = data['objects']
         self.assertEqual(1, len(transactions))
-        self.assertEqual(now, transactions[0]['date'])
+        self.assertLess(now - parser.parse(transactions[0]['date'], ignoretz=True), timedelta(seconds=1))
         self.assertEqual(name, transactions[0]['description'])
         movements = transactions[0]['movements']
         self.assertEqual(2, len(movements))
@@ -94,7 +99,8 @@ class TransactionsTestCase(DefaultTestCase):
         self.db.session.commit()
         bank_account = Account(name='Bank', type=AccountTypeEnum.asset)
         liability_account = Account(name='Liability', type=AccountTypeEnum.liability)
-        self.db.session.bulk_save_objects([bank_account, liability_account])
+        self.db.session.add(bank_account)
+        self.db.session.add(liability_account)
         self.db.session.commit()
         bank_id = bank_account.id
         liability_id = liability_account.id
@@ -119,7 +125,8 @@ class TransactionsTestCase(DefaultTestCase):
         transaction_id = self.test_post()
         equity_account = Account(name='Owner Equity', type=AccountTypeEnum.equity)
         expense_account = Account(name='Expenditure', type=AccountTypeEnum.expense)
-        self.db.session.bulk_save_objects([equity_account, expense_account])
+        self.db.session.add(equity_account)
+        self.db.session.add(expense_account)
         self.db.session.commit()
         equity_id = equity_account.id
         expense_id = expense_account.id
@@ -147,7 +154,7 @@ class TransactionsTestCase(DefaultTestCase):
         data = json.loads(response.data)
         transactions = data['objects']
         self.assertEqual(1, len(transactions))
-        self.assertEqual(now, transactions[0]['date'])
+        self.assertLess(now - parser.parse(transactions[0]['date'], ignoretz=True), timedelta(seconds=1))
         self.assertEqual(name, transactions[0]['description'])
         movements = transactions[0]['movements']
         self.assertEqual(2, len(movements))
@@ -183,9 +190,6 @@ class TransactionsTestCase(DefaultTestCase):
         self.assert_422(response)
 
     def test_delete(self):
-        # Post 2 transactions
-        # Delete 1 transaction
-        self.test_post()
         transaction_id_to_delete = self.test_post()
 
         response = self.client().delete('/transactions/{}'.format(transaction_id_to_delete),
@@ -193,13 +197,10 @@ class TransactionsTestCase(DefaultTestCase):
         self.view_message_if_fail(response)
         self.assert_200(response)
 
-        # Check that there is one transaction left
+        # Check that there is no transaction left
         response = self.client().get('/transactions',
                                      headers={'Authorization': 'bearer ' + self.TOKEN_ACCOUNTANT})
-        self.view_message_if_fail(response)
-        self.assert_200(response)
-        data = json.loads(response.data)
-        self.assertEqual(1, len(data['objects']))
+        self.assert_404(response)
 
     def test_delete_exception(self):
         # Delete a non existing transaction

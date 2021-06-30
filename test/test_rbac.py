@@ -48,7 +48,7 @@ class RbacTestCase(DefaultTestCase):
         data = json.loads(response.data)
         to_update = data['objects'][0]
         to_update['name'] = self.faker.name()
-        to_update['type'] = AccountTypeEnum.drawing
+        to_update['type'] = AccountTypeEnum.drawing.name
         response = self.client().patch('/accounts/{}'.format(to_update['id']), json=to_update,
                                        headers={'Authorization': 'bearer ' + token})
         return response
@@ -98,7 +98,8 @@ class RbacTestCase(DefaultTestCase):
         self.db.session.commit()
         bank_account = Account(name='Bank', type=AccountTypeEnum.asset)
         sales_account = Account(name='Sales', type=AccountTypeEnum.revenue)
-        self.db.session.bulk_save_objects([bank_account, sales_account])
+        self.db.session.add(bank_account)
+        self.db.session.add(sales_account)
         self.db.session.commit()
         new_transaction = {'date': (datetime.datetime.now()),
                            'description': (self.faker.name()),

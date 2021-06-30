@@ -35,7 +35,7 @@ def create():
         }), 200
     except Exception as e:
         db.session.rollback()
-        raise SimpleError("Cannot register that new account", 422)
+        raise SimpleError("Cannot register that new account".format(str(e)), 422)
     finally:
         db.session.close()
 
@@ -50,13 +50,12 @@ def delete(account_id):
     try:
         db.session.delete(o)
         db.session.commit()
-        print('passed here')
         return jsonify({
             'success': True
         }), 200
     except Exception as e:
         db.session.rollback()
-        raise SimpleError("Cannot delete that new account", 422)
+        raise SimpleError("Cannot delete that account".format(str(e)), 422)
     finally:
         db.session.close()
 
@@ -64,6 +63,7 @@ def delete(account_id):
 @bp.route('/<int:account_id>', methods=['PATCH'])
 @requires_auth('accounts:update')
 def patch(account_id):
+    # Should not be able to update type of transaction as it may corrupt the balance of accounts
     db = current_app.db
     o = Account.query.get(account_id)
     if o is None:
@@ -71,13 +71,12 @@ def patch(account_id):
     try:
         body = request.get_json()
         o.name = body['name']
-        o.type = AccountTypeEnum[body['type']]
         db.session.commit()
         return jsonify({
             'success': True
         }), 200
     except Exception as e:
         db.session.rollback()
-        abort(422)
+        raise SimpleError("Cannot update that account".format(str(e)), 422)
     finally:
         db.session.close()
